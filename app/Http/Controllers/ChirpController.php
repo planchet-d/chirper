@@ -40,10 +40,13 @@ class ChirpController extends Controller
         'message.min' => 'Chirps must be at least 5 characters long.',
     ]);
 
-    \App\Models\Chirp::create([
-        'message' => $validated['message'],
-        'user_id' => null,
-    ]);
+    //\App\Models\Chirp::create([
+      //  'message' => $validated['message'],
+        //'user_id' => null,
+    //]);
+
+    // Use the authenticated user
+    auth()->user()->chirps()->create($validated);
 
     return redirect('/')->with('success', 'Your chirp has been posted!');
     }
@@ -61,6 +64,7 @@ class ChirpController extends Controller
      */
     public function edit(Chirp $chirp)
 {
+    $this->authorize('update', $chirp);
     // We'll add authorization in lesson 11
     return view('chirps.edit', compact('chirp'));
 }
@@ -70,6 +74,7 @@ class ChirpController extends Controller
      */
     public function update(Request $request, Chirp $chirp)
 {
+    $this->authorize('update', $chirp);
     // Validate
     $validated = $request->validate([
         'message' => 'required|string|max:255',
@@ -86,6 +91,8 @@ class ChirpController extends Controller
      */
     public function destroy(Chirp $chirp)
 {
+    $this->authorize('delete', $chirp);
+    
     $chirp->delete();
 
     return redirect('/')->with('success', 'Chirp deleted!');
